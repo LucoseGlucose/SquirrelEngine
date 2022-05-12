@@ -14,9 +14,12 @@ uniform vec3 _lightColor;
 uniform vec3 _camPos;
 uniform float _specStrength = 1;
 uniform float _specFalloff = 10;
+uniform sampler2D texture0;
 
 void main() 
 {
+	_color = texture(texture0, _UV);
+	/*
 	vec3 norm = normalize(_normal);
 	vec3 lightDir = normalize(_lightPos - _worldPos);
 	float diffuse = max(dot(_normal, lightDir), 0);
@@ -26,5 +29,6 @@ void main()
 	float specAmount = pow(max(dot(viewDir, reflectDir), 0), _specFalloff);
 	float specular = specAmount * _specStrength;
 
-	_color = vec4((_mainColor.xyz + _ambientLight * _mainColor.xyz) * (_lightColor * diffuse + specular * _mainColor.xyz) / distance(_worldPos, _lightPos), 1);
+	vec4 texCol = texture(_mainTex, _UV) + _mainColor;*/
+	//_color = vec4((texCol.xyz + _ambientLight * texCol.xyz) * (_lightColor * diffuse + specular * texCol.xyz) / distance(_worldPos, _lightPos), 1);
 }
