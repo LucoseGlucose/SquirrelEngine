@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,16 +12,18 @@ namespace SquirrelEngine.Graphics
     internal class Rendering
     {
         public static CameraComponent CurrentCamera { get; private set; }
-        public static Vector3 ambientLight = .1f * Vector3.One;
+        public static Vector3 ambientLight = .2f * Vector3.One;
         public static float specularFalloff = 10f;
+        public static Texture tex;
 
-        public static void Init()
+        public static void Start()
         {
-            ShaderManager.Init();
+            ShaderManager.Start();
             CurrentCamera = App.CurentScene.FindComponentOfType<CameraComponent>();
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.Texture2D);
 
             GL.FrontFace(FrontFaceDirection.Ccw);
             GL.DepthFunc(DepthFunction.Less);
@@ -36,6 +38,9 @@ namespace SquirrelEngine.Graphics
             {
                 GL.UseProgram(model.material.shader.ID);
                 Mesh mesh = model.mesh;
+                GL.ActiveTexture(TextureUnit.Texture0);
+                int texID = Texture.CreateTexture("../../../Resources/Test.bmp").ID;
+                GL.BindTexture(TextureTarget.Texture2D, texID);
 
                 float[] verts = GraphicsUtils.Expand(mesh.Vertices);
                 int glVerts = GL.GenBuffer();
@@ -70,11 +75,13 @@ namespace SquirrelEngine.Graphics
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
                 GL.BindVertexArray(0);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
 
                 GL.DeleteVertexArray(vao);
                 GL.DeleteBuffer(glVerts);
                 GL.DeleteBuffer(glNormals);
                 GL.DeleteBuffer(glUVs);
+                GL.DeleteTexture(texID);
             }
         }
     }
