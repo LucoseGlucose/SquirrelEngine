@@ -1,10 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace SquirrelEngine.Graphics
 {
@@ -43,14 +45,14 @@ namespace SquirrelEngine.Graphics
                 Matrix4 mat = (Matrix4)value;
                 GL.UniformMatrix4(GL.GetUniformLocation(shader.ID, Name), false, ref mat);
             }
+            else if (CSType == typeof(Texture))
+                GL.Uniform1(GL.GetUniformLocation(shader.ID, Name), ((Texture)value).ID);
             else if (CSType == typeof(uint))
                 GL.Uniform1(GL.GetUniformLocation(shader.ID, Name), (uint)value);
             else if (CSType == typeof(float))
                 GL.Uniform1(GL.GetUniformLocation(shader.ID, Name), (float)value);
             else if (CSType == typeof(double))
                 GL.Uniform1(GL.GetUniformLocation(shader.ID, Name), (double)value);
-            else if (CSType == typeof(Texture))
-                GL.Uniform1(GL.GetUniformLocation(shader.ID, Name), ((Texture)value).Values.Length, GraphicsUtils.ByteToIntArray(((Texture)value).Values));
             else if (CSType == typeof(Vector2))
                 GL.Uniform2(GL.GetUniformLocation(shader.ID, Name), (Vector2)value);
             else if (CSType == typeof(Vector3))
