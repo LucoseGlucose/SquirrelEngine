@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +7,8 @@ using OpenTK.Mathematics;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
 using SquirrelEngine.Core;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace SquirrelEngine.Graphics
 {
@@ -78,6 +80,63 @@ namespace SquirrelEngine.Graphics
                 ActiveUniformType.Sampler2D => typeof(Texture),
                 _ => null,
             };
+        }
+
+        public static byte[] GetImagePixelData(Image<Rgba32> image)
+        {
+            Rgba32[] pixels = new Rgba32[image.Width * image.Height];
+            for (int x = 0; x < image.Width; x++)
+            {
+                for (int y = 0; y < image.Height; y++)
+                {
+                    pixels[x + image.Width * y] = image[x, y];
+                }
+            }
+
+            byte[] rawData = new byte[pixels.Length * 4];
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                rawData[i * 4] = pixels[i].R;
+                rawData[i * 4 + 1] = pixels[i].G;
+                rawData[i * 4 + 2] = pixels[i].B;
+                rawData[i * 4 + 3] = pixels[i].A;
+            }
+
+            return rawData;
+        }
+
+        /*public static int[] BytesToInts(byte[] bytes)
+        {
+            int[] ints = new int[bytes.Length / 4];
+            for (int i = 0; i < ints.Length; i++)
+            {
+                ints[i] = bytes[i * 4];
+            }
+        }*/
+
+        public static Vector2 DegreesToRadians(Vector2 vector)
+        {
+            return new(MathHelper.DegreesToRadians(vector.X), MathHelper.DegreesToRadians(vector.Y));
+        }
+
+        public static Vector3 DegreesToRadians(Vector3 vector)
+        {
+            return new(MathHelper.DegreesToRadians(vector.X), MathHelper.DegreesToRadians(vector.Y), MathHelper.DegreesToRadians(vector.Z));
+        }
+
+        public static Vector2 RadiansToDegrees(Vector2 vector)
+        {
+            return new(MathHelper.RadiansToDegrees(vector.X), MathHelper.RadiansToDegrees(vector.Y));
+        }
+
+        public static Vector3 RadiansToDegrees(Vector3 vector)
+        {
+            return new(MathHelper.RadiansToDegrees(vector.X), MathHelper.RadiansToDegrees(vector.Y), MathHelper.RadiansToDegrees(vector.Z));
+        }
+
+        public static Vector3 Abs(Vector3 vector)
+        {
+            return new Vector3(Math.Abs(vector.X), Math.Abs(vector.Y), Math.Abs(vector.Z));
         }
     }
 }
