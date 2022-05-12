@@ -1,45 +1,46 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenTK.Mathematics;
-using System.IO;
+using SquirrelEngine.Core;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using OpenTK.Graphics.OpenGL;
 
 namespace SquirrelEngine.Graphics
 {
     internal class Texture
     {
-        public byte[] Values { get; private set; }
-        public uint width;
-        public uint height;
         public int ID { get; private set; }
+        private Image<Rgba32> image;
 
-        public Texture(byte[] vals, uint width, uint height)
+        public Texture(int ID, Image<Rgba32> image)
         {
-            Values = vals;
-            this.width = width;
-            this.height = height;
+            this.ID = ID;
+            this.image = image;
         }
-        public static implicit operator byte[](Texture texture)
+        public static Texture CreateTexture(string path)
         {
-            return texture.Values;
+            int textureID = GL.GenTexture();
+            Image<Rgba32> image = Image.Load<Rgba32>(path);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, textureID);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width,
+                image.Height, 0, PixelFormat.Rgba, PixelType.Byte, GraphicsUtils.GetImagePixelData(image));
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+            return new Texture(textureID, image);
         }
-        public static Texture LoadFromBMP(string path)
+        public byte[] GetTextureData()
         {
-            if (Path.GetExtension(path) != ".bmp") throw new ArgumentException("Can only read .bmp files!");
-
-            byte[] imageData = File.ReadAllBytes(path);
-            byte[] header = imageData.Take(54).ToArray();
-
-            int dataPos = header[0x0A];
-            uint witdh = header[0x12];
-            uint height = header[0x16];
-            
-            if (dataPos == 0) dataPos = 54;
-
-            return new Texture(imageData.Skip(dataPos).ToArray(), witdh, height);
+            return GraphicsUtils.GetImagePixelData(image);
         }
     }
 }
