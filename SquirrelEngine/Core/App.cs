@@ -25,18 +25,17 @@ namespace SquirrelEngine.Core
             nativeWindowSettings.Size = new Vector2i(1280, 720);
             nativeWindowSettings.Title = "SquirrelEngine";
 
-            using (Image<Rgba32> icon = Image.Load<Rgba32>("../../../Resources/SquirrelEngine.png"))
+            using (Image<Rgba32> icon = Image.Load<Rgba32>("../../../Resources/Textures/SquirrelEngine.png"))
                 nativeWindowSettings.Icon = new(new OpenTK.Windowing.Common.Input.Image
                     (icon.Width, icon.Height, GraphicsUtils.GetImagePixelData(icon)));
 
             GameWindowSettings gameWindowSettings = new();
-            gameWindowSettings.RenderFrequency = 60;
-            gameWindowSettings.UpdateFrequency = 60;
 
             GameWindow = new(gameWindowSettings, nativeWindowSettings);
 
             GameWindow.Load += () =>
             {
+                ShaderManager.Start();
                 scene.Start();
                 Rendering.Start();
             };
@@ -47,6 +46,12 @@ namespace SquirrelEngine.Core
                 CurentScene.Update();
                 Rendering.Render(CurentScene);
                 GameWindow.SwapBuffers();
+                //Console.WriteLine(1f / frameArgs.Time);
+            };
+
+            GameWindow.Closing += (cancelArgs) =>
+            {
+                CurentScene.End();
             };
 
             GameWindow.Run();
