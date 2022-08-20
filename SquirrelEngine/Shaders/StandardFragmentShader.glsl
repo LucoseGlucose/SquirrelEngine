@@ -18,9 +18,13 @@ uniform float _specFalloff = 10;
 uniform sampler2D _mainTex;
 uniform int _lightType = 0;
 uniform samplerCube _skybox;
+uniform float _alphaClip = 0;
 
 void main() 
 {
+	vec4 texCol = texture(_mainTex, _UV);
+	if (texCol.w <= _alphaClip) discard;
+
 	vec3 norm = normalize(_normal);
 	
 	vec3 lightDir = normalize(-_lightPos);
@@ -37,7 +41,7 @@ void main()
 	vec3 skyboxDir = reflect(-viewDir, _normal);
 	vec4 skyCol = texture(_skybox, skyboxDir);
 
-	vec4 texCol = texture(_mainTex, _UV) + _mainColor;
+	vec4 mainColor = texCol + _mainColor;
 	vec3 color = texCol.xyz * diffuse + _lightColor * diffuse + specular * _lightColor + skyCol.xyz * _metallic;
 	
 	float dist = 1;
